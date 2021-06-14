@@ -11,9 +11,10 @@ import (
 // Connect - inicia as configuracoes de conexao com o baco sqlite
 func Connect() (*sql.DB, error) {
 
-	database, erro := sql.Open("sqlite", config.Path)
+	database, erro := sql.Open("sqlite3", config.Path)
 
 	if erro != nil {
+		fmt.Println(erro)
 		return nil, erro
 	}
 

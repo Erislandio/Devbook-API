@@ -18,5 +18,36 @@ func NewUserRepo(db *sql.DB) *User {
 }
 
 func (userRepo *User) Create(user models.User) (uint64, error) {
-	return 0, nil
+
+	statement, erro := userRepo.db.Prepare(SqlCreateUser)
+
+	if erro != nil {
+		return 0, erro
+	}
+
+	result, erro := statement.Exec(user.Name, user.Nick, user.Email, user.Password, user.CreatedAt)
+
+	if erro != nil {
+		return 0, erro
+	}
+
+	lastInsertId, erro := result.LastInsertId()
+
+	if erro != nil {
+		return 0, erro
+	}
+
+	return uint64(lastInsertId), nil
+}
+
+func (repo *User) GetAll() (*sql.Rows, error) {
+
+	rows, erro := repo.db.Query(SelectAllUsers)
+
+	if erro != nil {
+		return nil, erro
+	}
+
+	return rows, nil
+
 }

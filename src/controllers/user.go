@@ -5,9 +5,11 @@ import (
 	"api/src/models"
 	"api/src/repositories"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 func CreateUser(respose http.ResponseWriter, request *http.Request) {
@@ -18,6 +20,7 @@ func CreateUser(respose http.ResponseWriter, request *http.Request) {
 	}
 
 	var user models.User
+	user.CreatedAt = time.Now()
 
 	if erro = json.Unmarshal(body, &user); erro != nil {
 		log.Fatal(erro)
@@ -30,7 +33,14 @@ func CreateUser(respose http.ResponseWriter, request *http.Request) {
 	}
 
 	userRepository := repositories.NewUserRepo(db)
-	userRepository.Create(user)
+	result, erro := userRepository.Create(user)
+
+	if erro != nil {
+		log.Fatal(erro)
+	}
+
+	respose.Write([]byte(fmt.Sprintf("Userid: %d", result)))
+
 }
 
 func GetUser(respose http.ResponseWriter, request *http.Request) {
@@ -38,7 +48,57 @@ func GetUser(respose http.ResponseWriter, request *http.Request) {
 }
 
 func GetUsers(respose http.ResponseWriter, request *http.Request) {
-	respose.Write([]byte("Criando usuário"))
+
+	var users []models.User
+
+	db, erro := database.Connect()
+
+	if erro != nil {
+		log.Fatal(erro)
+	}
+
+	userRepository := repositories.NewUserRepo(db)
+
+	results, erro := userRepository.GetAll()
+
+	if erro != nil {
+		log.Fatal(erro)
+	}
+
+	for results.Next() {
+
+		var id uint64
+		var name string
+		var nick string
+		var email string
+		var createdAt string
+
+		err := results.Scan(&id, &name, &nick, &email, &createdAt)
+
+		if err != nil {
+			fmt.Println("Error on scan fields")
+			log.Fatal(erro)
+		}
+
+		user := models.User{
+			ID:        id,
+			Name:      name,
+			Nick:      nick,
+			CreatedAt: time.Now(),
+		}
+
+		users = append(users, user)
+	}
+
+	defer results.Close()
+
+	result, err := json.Marshal(users)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	respose.Write([]byte(result))
 }
 
 func UpdateUser(respose http.ResponseWriter, request *http.Request) {
