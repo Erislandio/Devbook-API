@@ -4,6 +4,7 @@ import (
 	"api/src/database"
 	"api/src/models"
 	"api/src/repositories"
+	"api/src/responses"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -23,24 +24,26 @@ func CreateUser(respose http.ResponseWriter, request *http.Request) {
 	user.CreatedAt = time.Now()
 
 	if erro = json.Unmarshal(body, &user); erro != nil {
-		log.Fatal(erro)
+		responses.Erro(respose, http.StatusBadRequest, erro)
+		return
 	}
 
 	db, erro := database.Connect()
 
 	if erro != nil {
-		log.Fatal(erro)
+		responses.Erro(respose, http.StatusInternalServerError, erro)
+		return
 	}
 
 	userRepository := repositories.NewUserRepo(db)
 	result, erro := userRepository.Create(user)
 
 	if erro != nil {
-		log.Fatal(erro)
+		responses.Erro(respose, http.StatusInternalServerError, erro)
+		return
 	}
 
-	respose.Write([]byte(fmt.Sprintf("Userid: %d", result)))
-
+	responses.JSON(respose, http.StatusCreated, result)
 }
 
 func GetUser(respose http.ResponseWriter, request *http.Request) {
@@ -85,6 +88,7 @@ func GetUsers(respose http.ResponseWriter, request *http.Request) {
 			Name:      name,
 			Nick:      nick,
 			CreatedAt: time.Now(),
+			Email:     email,
 		}
 
 		users = append(users, user)

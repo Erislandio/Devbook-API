@@ -5,5 +5,5 @@ const (
 		?,?,?,?,?	
 	); `
 
-	SelectAllUsers = `SELECT * FROM user`
+	SelectAllUsers = `select id, name, nick, email, created_at from user;`
 )

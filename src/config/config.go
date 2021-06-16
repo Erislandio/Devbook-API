@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	Path string = ""
-	Port int    = 5000
+	Path                string = ""
+	Port                int    = 5000
+	SqlConnectionString        = ""
 )
 
 func Config() {
@@ -30,5 +31,12 @@ func Config() {
 		message := fmt.Sprintf("Port not have value, apply default value: %d", Port)
 		fmt.Println(message)
 	}
+
+	SqlConnectionString = fmt.Sprintf(
+		"%s:%s@/%s?charset=utf8",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+	)
 
 }
