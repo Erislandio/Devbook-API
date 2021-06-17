@@ -174,43 +174,9 @@ func GetUsers(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	var users []models.User
+	users := ProcessResults(results)
 
-	for results.Next() {
-
-		var id uint64
-		var name string
-		var nick string
-		var email string
-		var createdAt string
-
-		err := results.Scan(&id, &name, &nick, &email, &createdAt)
-
-		if err != nil {
-			responses.Erro(response, http.StatusInternalServerError, erro)
-			return
-		}
-
-		user := models.User{
-			ID:        id,
-			Name:      name,
-			Nick:      nick,
-			CreatedAt: time.Now(),
-			Email:     email,
-		}
-
-		users = append(users, user)
-	}
-
-	defer results.Close()
-
-	result, err := json.Marshal(users)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	responses.JSON(response, http.StatusOK, result)
+	responses.JSON(response, http.StatusOK, users)
 }
 
 func UpdateUser(response http.ResponseWriter, request *http.Request) {
