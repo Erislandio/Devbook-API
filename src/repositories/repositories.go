@@ -3,6 +3,7 @@ package repositories
 import (
 	"api/src/models"
 	"database/sql"
+	"fmt"
 )
 
 // User struct -repositorio de usuarios
@@ -50,4 +51,30 @@ func (repo *User) GetAll() (*sql.Rows, error) {
 
 	return rows, nil
 
+}
+
+func (repo *User) GetByNickName(nick string) (*sql.Rows, error) {
+
+	statement := fmt.Sprintf(`%s "%%%s%%" ;`, SelectByNickName, nick)
+
+	rows, erro := repo.db.Query(statement)
+
+	if erro != nil {
+		return nil, erro
+	}
+
+	return rows, nil
+}
+
+func (repo *User) GetByID(id string) (*sql.Rows, error) {
+
+	statement := fmt.Sprintf(`%s %s;`, SelectByID, id)
+
+	rows, erro := repo.db.Query(statement)
+
+	if erro != nil {
+		return nil, erro
+	}
+
+	return rows, nil
 }

@@ -9,5 +9,6 @@ import (
 // Init inicializa as rotas da api
 func Init() *mux.Router {
 	router := mux.NewRouter()
+	router.Path("/users").Queries("nickname")
 	return routers.Configure(router)
 }
